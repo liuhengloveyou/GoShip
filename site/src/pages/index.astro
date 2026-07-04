@@ -1,0 +1,74 @@
+---
+import { getPublishedPosts } from "@/content";
+import Layout from "@/layouts/Layout.astro";
+import DocsLayout from "@/layouts/DocsLayout.astro";
+import Card from "@/components/Card.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { SITE } from "@/config";
+import { t } from "@/i18n/ui";
+
+const posts = await getPublishedPosts();
+
+const sortedPosts = getSortedPosts(posts);
+const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
+const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const locale = Astro.currentLocale ?? SITE.lang;
+---
+
+<Layout>
+  <DocsLayout
+    navItems={[
+      { label: t(locale, "navOverview"), href: "/", active: true },
+      { label: t(locale, "navPosts"), href: "/posts" },
+      { label: t(locale, "navTags"), href: "/tags" },
+      { label: t(locale, "navAbout"), href: "/about" },
+      { label: t(locale, "navSearch"), href: "/search" },
+    ]}
+  >
+    <section class="mb-10 rounded-box border border-base-300 bg-base-100 p-6 shadow-sm sm:p-8">
+      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">{SITE.title}</h1>
+      <p class="mt-4 max-w-2xl text-[15px] text-base-content/70">
+        {t(locale, "siteIntro")}
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="/posts" class="btn btn-primary">{t(locale, "readPosts")}</a>
+        <a href="/about" class="btn btn-ghost">{t(locale, "aboutSite")}</a>
+      </div>
+    </section>
+
+    {
+      featuredPosts.length > 0 && (
+        <section class="mb-10">
+          <div class="mb-4 flex items-center justify-between border-b border-base-300 pb-2">
+            <h2 class="text-2xl font-semibold tracking-tight">{t(locale, "featured")}</h2>
+            <span class="badge badge-primary badge-outline">
+              {featuredPosts.length}
+            </span>
+          </div>
+          <ul class="space-y-4">
+            {featuredPosts.map(data => (
+              <Card variant="h3" {...data} />
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      recentPosts.length > 0 && (
+        <section>
+          <div class="mb-4 flex items-center justify-between border-b border-base-300 pb-2">
+            <h2 class="text-2xl font-semibold tracking-tight">{t(locale, "recentPosts")}</h2>
+            <a href="/posts" class="btn btn-outline btn-sm">{t(locale, "viewAll")}</a>
+          </div>
+          <ul class="space-y-4">
+            {recentPosts.map(
+              (data, index) =>
+                index < SITE.postPerIndex && <Card variant="h3" {...data} />
+            )}
+          </ul>
+        </section>
+      )
+    }
+  </DocsLayout>
+</Layout>

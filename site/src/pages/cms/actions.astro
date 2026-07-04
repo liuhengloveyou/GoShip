@@ -1,0 +1,350 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="CMS Actions">
+  <section class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="text-2xl font-semibold">GoPress 操作台</h1>
+    <p class="mt-2 text-sm opacity-70">
+      手动执行送审、定时发布、发布、归档与回滚请求。此页面直接调用 GoPress HTTP API。
+    </p>
+
+    <div class="card mt-6 border border-base-300 bg-base-100">
+      <div class="card-body gap-3">
+        <div class="grid gap-3 md:grid-cols-2">
+          <label class="form-control w-full">
+            <span class="label-text">GoPress API URL</span>
+            <input id="cmsApiUrl" class="input input-bordered w-full" placeholder="http://127.0.0.1:8080" />
+          </label>
+          <label class="form-control w-full">
+            <span class="label-text">API Token（可选）</span>
+            <input id="cmsApiToken" class="input input-bordered w-full" placeholder="Bearer token 或其它鉴权值" type="password" />
+          </label>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <label class="form-control w-full">
+            <span class="label-text">操作人（审计字段）</span>
+            <input id="operator" class="input input-bordered w-full" value="manual" />
+          </label>
+          <label class="form-control w-full">
+            <span class="label-text">Release Trigger API（展示）</span>
+            <input id="releaseWebhookUrl" class="input input-bordered w-full" value="/api/v1/releases/{id}/trigger" />
+          </label>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="btnLoadPosts" class="btn btn-primary btn-sm">加载文章</button>
+          <button id="btnLoadReleases" class="btn btn-outline btn-sm">加载发布任务</button>
+          <a class="btn btn-ghost btn-sm" href="/cms/releases">查看发布任务页</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h2 class="text-lg font-medium">文章列表</h2>
+      <div class="mt-3 overflow-x-auto rounded-box border border-base-300">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>标题</th>
+              <th>ID</th>
+              <th>状态</th>
+              <th>更新时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="postsBody">
+            <tr><td colspan="5" class="opacity-60">暂无数据，请先加载文章。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h2 class="text-lg font-medium">发布任务（最近 20 条）</h2>
+      <div class="mt-3 overflow-x-auto rounded-box border border-base-300">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Release ID</th>
+              <th>Post ID</th>
+              <th>Status</th>
+              <th>Stage</th>
+              <th>Error</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="releasesBody">
+            <tr><td colspan="6" class="opacity-60">暂无数据，请加载发布任务。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-box border border-base-300 p-3">
+      <h2 class="text-sm font-medium">操作日志</h2>
+      <pre id="logs" class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs opacity-80"></pre>
+    </div>
+  </section>
+
+  <script is:inline>
+    const STATUS_TRANSITIONS = {
+      draft: ["in_review", "scheduled", "published", "archived"],
+      in_review: ["draft", "scheduled", "published", "archived"],
+      scheduled: ["draft", "in_review", "published", "archived"],
+      published: ["draft", "archived"],
+      archived: ["draft"],
+    };
+
+    const ui = {
+      cmsApiUrl: document.getElementById("cmsApiUrl"),
+      cmsApiToken: document.getElementById("cmsApiToken"),
+      operator: document.getElementById("operator"),
+      releaseWebhookUrl: document.getElementById("releaseWebhookUrl"),
+      btnLoadPosts: document.getElementById("btnLoadPosts"),
+      btnLoadReleases: document.getElementById("btnLoadReleases"),
+      postsBody: document.getElementById("postsBody"),
+      releasesBody: document.getElementById("releasesBody"),
+      logs: document.getElementById("logs"),
+    };
+
+    function log(message) {
+      const now = new Date().toISOString();
+      ui.logs.textContent += `[${now}] ${message}\n`;
+      ui.logs.scrollTop = ui.logs.scrollHeight;
+    }
+
+    function getConfig() {
+      const baseUrl = ui.cmsApiUrl.value.trim().replace(/\/+$/, "");
+      if (!baseUrl) throw new Error("请先填写 CMS API URL");
+
+      return {
+        baseUrl,
+        token: ui.cmsApiToken.value.trim(),
+        operator: ui.operator.value.trim() || "manual",
+        releaseWebhookUrl: ui.releaseWebhookUrl.value.trim(),
+      };
+    }
+
+    async function cmsRequest(path, init = {}) {
+      const config = getConfig();
+      const headers = new Headers(init.headers || {});
+      if (config.token) headers.set("Authorization", config.token);
+      if (!headers.has("Content-Type") && init.body) headers.set("Content-Type", "application/json");
+
+      const res = await fetch(`${config.baseUrl}${path}`, { ...init, headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}: ${path}`);
+
+      const text = await res.text();
+      try { return JSON.parse(text); } catch { return text; }
+    }
+
+    function canTransition(fromStatus, toStatus) {
+      return fromStatus === toStatus || (STATUS_TRANSITIONS[fromStatus] || []).includes(toStatus);
+    }
+
+    async function updatePostStatus(post, toStatus, extraFields = {}) {
+      const fromStatus = post.status || "draft";
+      if (!canTransition(fromStatus, toStatus)) throw new Error(`非法状态流转: ${fromStatus} -> ${toStatus}`);
+      if (toStatus === "in_review") {
+        return cmsRequest(`/api/v1/posts/${post.id}/request-review`, { method: "POST" });
+      }
+      if (toStatus === "scheduled") {
+        return cmsRequest(`/api/v1/posts/${post.id}/schedule`, {
+          method: "POST",
+          body: JSON.stringify({
+            scheduledAt: extraFields.scheduled_at || new Date().toISOString(),
+          }),
+        });
+      }
+      if (toStatus === "published") {
+        return cmsRequest(`/api/v1/posts/${post.id}/publish`, { method: "POST" });
+      }
+      if (toStatus === "archived") {
+        return cmsRequest(`/api/v1/posts/${post.id}/archive`, { method: "POST" });
+      }
+      return post;
+    }
+
+    async function createRelease(postId, status, note, stage, extra = {}) {
+      const config = getConfig();
+      return cmsRequest(`/api/v1/releases`, {
+        method: "POST",
+        body: JSON.stringify({
+          postId,
+          status,
+          note: note || "",
+          operator: config.operator,
+          stage,
+          triggered_at: new Date().toISOString(),
+          ...extra,
+        }),
+      });
+    }
+
+    async function patchRelease(releaseId, payload) {
+      return cmsRequest(`/api/v1/releases/${releaseId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+    }
+
+    function renderPosts(items) {
+      if (!items?.length) {
+        ui.postsBody.innerHTML = '<tr><td colspan="5" class="opacity-60">没有可操作的文章。</td></tr>';
+        return;
+      }
+
+      ui.postsBody.innerHTML = items.map(post => {
+        const title = post.title || "Untitled";
+        const status = post.status || "draft";
+        const updated = post.updated || "-";
+        return `<tr>
+          <td>${escapeHtml(title)}</td>
+          <td class="font-mono text-xs">${escapeHtml(post.id)}</td>
+          <td>${escapeHtml(status)}</td>
+          <td class="text-xs">${escapeHtml(updated)}</td>
+          <td><div class="flex flex-wrap gap-1">
+            <button class="btn btn-xs btn-outline" data-action="review" data-id="${post.id}">送审</button>
+            <button class="btn btn-xs btn-outline" data-action="schedule" data-id="${post.id}">定时</button>
+            <button class="btn btn-xs btn-primary" data-action="publish" data-id="${post.id}">发布</button>
+            <button class="btn btn-xs btn-ghost" data-action="archive" data-id="${post.id}">归档</button>
+          </div></td></tr>`;
+      }).join("");
+    }
+
+    function renderReleases(items) {
+      if (!items?.length) {
+        ui.releasesBody.innerHTML = '<tr><td colspan="6" class="opacity-60">暂无发布任务。</td></tr>';
+        return;
+      }
+
+      ui.releasesBody.innerHTML = items.map(item => `<tr>
+        <td class="font-mono text-xs">${escapeHtml(item.id || "-")}</td>
+        <td class="font-mono text-xs">${escapeHtml(item.post_id || item.postId || "-")}</td>
+        <td>${escapeHtml(item.status || "-")}</td>
+        <td>${escapeHtml(item.stage || "-")}</td>
+        <td class="text-xs">${escapeHtml(item.error_code || item.errorCode || "-")}</td>
+        <td><button class="btn btn-xs btn-warning" data-release-action="rollback" data-release-id="${escapeHtml(item.id || "")}">回滚</button></td>
+      </tr>`).join("");
+    }
+
+    async function loadPosts() {
+      log("加载文章中...");
+      const data = await cmsRequest(`/api/v1/posts`);
+      renderPosts(data || []);
+      log(`文章加载完成: ${(data || []).length} 条`);
+    }
+
+    async function loadReleases() {
+      log("加载发布任务中...");
+      const data = await cmsRequest(`/api/v1/releases?limit=20`);
+      renderReleases(data || []);
+      log(`发布任务加载完成: ${(data || []).length} 条`);
+    }
+
+    async function handlePostAction(action, postId) {
+      const post = await cmsRequest(`/api/v1/posts/${postId}`);
+      const fromStatus = post.status || "draft";
+
+      if (action === "review") {
+        await updatePostStatus(post, "in_review");
+        log(`送审成功: ${postId}`);
+        await loadPosts();
+        return;
+      }
+      if (action === "schedule") {
+        const scheduledAt = window.prompt("请输入计划发布时间（ISO 格式）", new Date().toISOString());
+        if (!scheduledAt) return;
+        await updatePostStatus(post, "scheduled", { scheduled_at: scheduledAt });
+        log(`定时发布设置成功: ${postId} @ ${scheduledAt}`);
+        await loadPosts();
+        return;
+      }
+      if (action === "archive") {
+        await updatePostStatus(post, "archived");
+        log(`归档成功: ${postId}`);
+        await loadPosts();
+        return;
+      }
+      if (action === "publish") {
+        const releaseNote = window.prompt("发布备注（可选）", "") || "";
+        const startedAt = Date.now();
+        await updatePostStatus(post, "published", { releaseNote });
+        const release = await createRelease(post.id, "queued", releaseNote, "validate");
+        await patchRelease(release.id, { status: "running", stage: "build" });
+        try {
+          await cmsRequest(`/api/v1/releases/${release.id}/trigger`, { method: "POST" });
+          await patchRelease(release.id, { status: "success", stage: "completed", durationMs: Date.now() - startedAt });
+          log(`发布成功: ${postId} (${fromStatus} -> published)`);
+        } catch (error) {
+          await patchRelease(release.id, {
+            status: "failed",
+            stage: "failed",
+            errorCode: "WEBHOOK_TRIGGER_FAILED",
+            errorMessage: error instanceof Error ? error.message : "Unknown webhook error",
+            durationMs: Date.now() - startedAt,
+          });
+          throw error;
+        }
+        await Promise.all([loadPosts(), loadReleases()]);
+      }
+    }
+
+    async function handleReleaseAction(action, releaseId) {
+      if (action !== "rollback") return;
+      const target = await cmsRequest(`/api/v1/releases/${releaseId}`);
+      const postId = target.postId || target.post_id;
+      if (!postId) throw new Error("目标 release 缺少 post_id，无法回滚");
+      const note = window.prompt("回滚备注（可选）", "manual rollback request") || "";
+      const startedAt = Date.now();
+      const rollback = await createRelease(postId, "queued", note, "deploy", { rollbackOfReleaseId: releaseId });
+      await patchRelease(rollback.id, { status: "running", stage: "deploy" });
+      try {
+        await cmsRequest(`/api/v1/releases/${rollback.id}/trigger`, { method: "POST" });
+        await patchRelease(rollback.id, { status: "success", stage: "completed", durationMs: Date.now() - startedAt });
+        log(`回滚请求成功: ${releaseId} -> ${rollback.id}`);
+      } catch (error) {
+        await patchRelease(rollback.id, {
+          status: "failed",
+          stage: "failed",
+          errorCode: "ROLLBACK_TRIGGER_FAILED",
+          errorMessage: error instanceof Error ? error.message : "Unknown rollback error",
+          durationMs: Date.now() - startedAt,
+        });
+        throw error;
+      }
+      await loadReleases();
+    }
+
+    ui.btnLoadPosts.addEventListener("click", async () => {
+      try { await loadPosts(); } catch (error) { log(`加载文章失败: ${error instanceof Error ? error.message : String(error)}`); }
+    });
+    ui.btnLoadReleases.addEventListener("click", async () => {
+      try { await loadReleases(); } catch (error) { log(`加载发布任务失败: ${error instanceof Error ? error.message : String(error)}`); }
+    });
+    ui.postsBody.addEventListener("click", async event => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const action = target.dataset.action;
+      const postId = target.dataset.id;
+      if (!action || !postId) return;
+      target.disabled = true;
+      try { await handlePostAction(action, postId); } catch (error) { log(`操作失败(${action}): ${error instanceof Error ? error.message : String(error)}`); } finally { target.disabled = false; }
+    });
+    ui.releasesBody.addEventListener("click", async event => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const action = target.dataset.releaseAction;
+      const releaseId = target.dataset.releaseId;
+      if (!action || !releaseId) return;
+      target.disabled = true;
+      try { await handleReleaseAction(action, releaseId); } catch (error) { log(`release 操作失败(${action}): ${error instanceof Error ? error.message : String(error)}`); } finally { target.disabled = false; }
+    });
+  </script>
+</Layout>

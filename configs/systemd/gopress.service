@@ -1,0 +1,22 @@
+[Unit]
+Description=GoPress Web Service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/gopress
+ExecStart=/opt/gopress/gopress
+Restart=always
+RestartSec=3
+
+# Load runtime environment (copy from web.example.env)
+EnvironmentFile=/opt/gopress/configs/web.env
+
+# Journald logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gopress
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,206 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/noto-sans-sc/400.css";
+@import "@fontsource/noto-sans-sc/500.css";
+@import "@fontsource/noto-sans-sc/700.css";
+@import "./typography.css";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root,
+html[data-theme="light"] {
+  --background: #f9fafb;
+  --foreground: #111827;
+  --accent: #2563eb;
+  --muted: #f3f4f6;
+  --border: #e5e7eb;
+}
+
+html[data-theme="dark"] {
+  --background: #0b1220;
+  --foreground: #e5e7eb;
+  --accent: #60a5fa;
+  --muted: #111827;
+  --border: #243041;
+}
+
+@theme inline {
+  --font-app:
+    "Inter", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-accent/75;
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-muted) transparent;
+  }
+  html {
+    @apply overflow-y-scroll scroll-smooth;
+  }
+  body {
+    @apply flex min-h-svh flex-col bg-background font-app text-[15px] leading-6 text-foreground antialiased selection:bg-accent/75 selection:text-background;
+    font-feature-settings:
+      "liga" 1,
+      "calt" 1,
+      "kern" 1;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply tracking-tight;
+    letter-spacing: -0.0125em;
+  }
+  a,
+  button {
+    @apply outline-offset-1 outline-accent focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility max-w-app {
+  @apply max-w-3xl;
+}
+
+@utility app-layout {
+  @apply mx-auto w-full max-w-app px-4;
+}
+
+.active-nav {
+  @apply underline decoration-wavy decoration-2 underline-offset-8;
+}
+
+@layer components {
+  .header-shell {
+    @apply border-b border-base-300/35 bg-base-100/92 backdrop-blur-xl;
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-border) 55%, transparent);
+  }
+
+  .header-inner {
+    position: relative;
+  }
+
+  .header-inner::after {
+    content: none;
+  }
+
+  .site-brand {
+    @apply inline-flex items-center px-2 py-1.5 text-accent transition-colors duration-200;
+    letter-spacing: -0.01em;
+  }
+
+  .site-brand:hover {
+    @apply text-accent/85;
+  }
+
+  .header-nav-link {
+    @apply relative rounded-lg px-3 py-2 text-foreground/85 font-medium transition-colors duration-200;
+  }
+
+  .header-nav-link:hover {
+    @apply text-foreground;
+    background: transparent;
+  }
+
+  .header-nav-link.is-active {
+    @apply text-accent font-semibold;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .header-nav-link.is-active::after {
+    content: none;
+  }
+
+  .header-nav-link:focus-visible {
+    @apply text-foreground outline-none;
+    box-shadow:
+      0 0 0 2px color-mix(in oklab, var(--color-background) 90%, transparent),
+      0 0 0 4px color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+
+  .side-nav-link {
+    @apply relative rounded-md px-3 py-2 text-foreground/80 transition-colors duration-200;
+  }
+
+  .side-nav-link:hover {
+    @apply text-foreground;
+    background: transparent;
+  }
+
+  .side-nav-link.is-active {
+    @apply text-accent font-semibold;
+    background: transparent;
+  }
+
+  .side-nav-link.is-active::before {
+    content: none;
+  }
+
+  .header-control {
+    border-color: color-mix(in oklab, var(--color-border) 80%, transparent);
+    background: color-mix(in oklab, var(--color-background) 94%, transparent);
+  }
+
+  .header-control:hover {
+    border-color: color-mix(in oklab, var(--color-accent) 24%, var(--color-border));
+  }
+
+  .header-icon-btn {
+    border: 1px solid color-mix(in oklab, var(--color-border) 72%, transparent);
+    background: color-mix(in oklab, var(--color-background) 92%, transparent);
+    transition:
+      transform 220ms ease,
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .header-icon-btn:hover {
+    transform: translateY(-0.5px);
+    border-color: color-mix(in oklab, var(--color-accent) 25%, var(--color-border));
+    background: color-mix(in oklab, var(--color-accent) 10%, var(--color-background));
+    box-shadow: 0 8px 16px -14px color-mix(in oklab, var(--color-accent) 55%, transparent);
+  }
+
+  .menu li > a.active,
+  .menu li > a[aria-current="page"] {
+    @apply text-accent font-semibold;
+    background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 20%, transparent);
+  }
+
+  .menu li > a.active:hover,
+  .menu li > a[aria-current="page"]:hover {
+    @apply bg-accent/16;
+  }
+
+  .btn.btn-active {
+    @apply bg-accent/14 text-accent border-accent/35 shadow-none;
+  }
+
+  .btn.btn-active:hover {
+    @apply bg-accent/20 border-accent/45;
+  }
+}
+
+/* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */
+/* Anything that has been anchored to should have extra scroll margin */
+:target {
+  scroll-margin-block: 1rem;
+}

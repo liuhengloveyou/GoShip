@@ -1,0 +1,58 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getLatestReleaseTasks } from "@/content";
+import type { ReleaseTask } from "@/content";
+
+let releases: ReleaseTask[] = [];
+let errorMessage = "";
+
+try {
+  releases = await getLatestReleaseTasks(30);
+} catch (error) {
+  errorMessage = error instanceof Error ? error.message : "Failed to load releases.";
+}
+---
+
+<Layout title="CMS Releases">
+  <section class="mx-auto max-w-5xl px-4 py-8">
+    <h1 class="text-2xl font-semibold">CMS 发布任务</h1>
+    <p class="mt-2 text-sm opacity-70">
+      用于查看手动发布任务状态（queued/running/success/failed）。
+    </p>
+
+    {
+      errorMessage ? (
+        <div class="alert alert-error mt-4">
+          <span>{errorMessage}</span>
+        </div>
+      ) : (
+        <div class="mt-6 overflow-x-auto rounded-box border border-base-300">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Release ID</th>
+                <th>Post ID</th>
+                <th>Status</th>
+                <th>Stage</th>
+                <th>Error</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {releases.map(release => (
+                <tr>
+                  <td class="font-mono text-xs">{release.id}</td>
+                  <td class="font-mono text-xs">{release.postId}</td>
+                  <td>{release.status}</td>
+                  <td>{release.stage ?? "-"}</td>
+                  <td class="text-xs">{release.errorCode ?? "-"}</td>
+                  <td class="text-xs">{release.updatedAt ?? release.createdAt ?? "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </section>
+</Layout>

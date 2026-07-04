@@ -1,0 +1,47 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { SITE } from "@/config";
+import { t } from "@/i18n/ui";
+import BrandMark from "./BrandMark.astro";
+
+const currentYear = new Date().getFullYear();
+
+type Props = {
+  noMarginTop?: boolean;
+} & HTMLAttributes<"footer">;
+
+const { noMarginTop = false, class: className, ...attrs } = Astro.props;
+const locale = Astro.currentLocale ?? SITE.lang;
+const localePrefix = String(locale).toLowerCase().startsWith("en") ? "/en" : "";
+const withLocale = (path: string) => `${localePrefix}${path === "/" ? "" : path}`;
+---
+
+<footer
+  class:list={[
+    "mx-auto w-full max-w-7xl px-4 lg:px-6",
+    { "mt-auto": !noMarginTop },
+    className,
+  ]}
+  {...attrs}
+>
+  <div class="mt-8 border-t border-base-300/80 py-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-1">
+        <BrandMark href={withLocale("/")} size="sm" />
+        <p class="max-w-xl text-sm text-foreground/70">{SITE.desc}</p>
+      </div>
+      <nav aria-label="footer" class="sm:text-right">
+        <ul class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground/75 sm:justify-end">
+          <li><a href={withLocale("/posts")} class="hover:text-accent">{t(locale, "navPosts")}</a></li>
+          <li><a href={withLocale("/tags")} class="hover:text-accent">{t(locale, "navTags")}</a></li>
+          <li><a href={withLocale("/about")} class="hover:text-accent">{t(locale, "navAbout")}</a></li>
+          <li><a href={withLocale("/archives")} class="hover:text-accent">{t(locale, "navArchives")}</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="mt-4 flex flex-col gap-1 border-t border-base-300/70 pt-3 text-xs text-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+      <span>{t(locale, "copyright")} &#169; {currentYear} {SITE.title}</span>
+      <span>{t(locale, "allRightsReserved")}</span>
+    </div>
+  </div>
+</footer>

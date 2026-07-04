@@ -1,0 +1,296 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="CMS Editor">
+  <section class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="text-2xl font-semibold">GoPress 文章编辑器</h1>
+    <p class="mt-2 text-sm opacity-70">支持加载文章、编辑字段、保存草稿与手动发布。</p>
+
+    <div class="card mt-6 border border-base-300 bg-base-100">
+      <div class="card-body gap-3">
+        <div class="grid gap-3 md:grid-cols-2">
+          <label class="form-control">
+            <span class="label-text">GoPress API URL</span>
+            <input id="cmsApiUrl" class="input input-bordered" placeholder="http://127.0.0.1:8080" />
+          </label>
+          <label class="form-control">
+            <span class="label-text">API Token（可选）</span>
+            <input id="cmsApiToken" class="input input-bordered" type="password" />
+          </label>
+        </div>
+        <div class="grid gap-3 md:grid-cols-3">
+          <label class="form-control">
+            <span class="label-text">Posts API（展示）</span>
+            <input id="postsCollection" class="input input-bordered" value="/api/v1/posts" />
+          </label>
+          <label class="form-control">
+            <span class="label-text">Site Build API（展示）</span>
+            <input id="releasesCollection" class="input input-bordered" value="/api/v1/site/build" />
+          </label>
+          <label class="form-control">
+            <span class="label-text">Operator</span>
+            <input id="operator" class="input input-bordered" value="manual" />
+          </label>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnLoadPosts" class="btn btn-primary btn-sm">加载文章列表</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+      <div class="rounded-box border border-base-300 p-3">
+        <h2 class="text-sm font-medium">文章列表</h2>
+        <div id="postsList" class="mt-3 flex max-h-[30rem] flex-col gap-2 overflow-auto text-sm"></div>
+      </div>
+
+      <div class="rounded-box border border-base-300 p-4">
+        <div class="grid gap-3 md:grid-cols-2">
+          <label class="form-control">
+            <span class="label-text">文章 ID</span>
+            <input id="postId" class="input input-bordered" readonly />
+          </label>
+          <label class="form-control">
+            <span class="label-text">状态</span>
+            <select id="postStatus" class="select select-bordered">
+              <option value="draft">draft</option>
+              <option value="in_review">in_review</option>
+              <option value="scheduled">scheduled</option>
+              <option value="published">published</option>
+              <option value="archived">archived</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+          <label class="form-control">
+            <span class="label-text">标题</span>
+            <input id="title" class="input input-bordered" />
+          </label>
+          <label class="form-control">
+            <span class="label-text">Slug</span>
+            <input id="slug" class="input input-bordered" />
+          </label>
+        </div>
+
+        <label class="form-control mt-3">
+          <span class="label-text">摘要</span>
+          <textarea id="excerpt" class="textarea textarea-bordered h-20"></textarea>
+        </label>
+
+        <label class="form-control mt-3">
+          <span class="label-text">正文 HTML</span>
+          <textarea id="contentHtml" class="textarea textarea-bordered h-56 font-mono text-xs"></textarea>
+        </label>
+
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+          <label class="form-control">
+            <span class="label-text">SEO Title</span>
+            <input id="seoTitle" class="input input-bordered" />
+          </label>
+          <label class="form-control">
+            <span class="label-text">SEO Description</span>
+            <input id="seoDescription" class="input input-bordered" />
+          </label>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="btnNew" class="btn btn-outline btn-sm">新建草稿</button>
+          <button id="btnSave" class="btn btn-primary btn-sm">保存草稿</button>
+          <button id="btnPublish" class="btn btn-success btn-sm">发布</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-box border border-base-300 p-3">
+      <h2 class="text-sm font-medium">日志</h2>
+      <pre id="logs" class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs opacity-80"></pre>
+    </div>
+  </section>
+
+  <script is:inline>
+    const ui = {
+      cmsApiUrl: document.getElementById("cmsApiUrl"),
+      cmsApiToken: document.getElementById("cmsApiToken"),
+      postsCollection: document.getElementById("postsCollection"),
+      releasesCollection: document.getElementById("releasesCollection"),
+      operator: document.getElementById("operator"),
+      btnLoadPosts: document.getElementById("btnLoadPosts"),
+      postsList: document.getElementById("postsList"),
+      postId: document.getElementById("postId"),
+      postStatus: document.getElementById("postStatus"),
+      title: document.getElementById("title"),
+      slug: document.getElementById("slug"),
+      excerpt: document.getElementById("excerpt"),
+      contentHtml: document.getElementById("contentHtml"),
+      seoTitle: document.getElementById("seoTitle"),
+      seoDescription: document.getElementById("seoDescription"),
+      btnNew: document.getElementById("btnNew"),
+      btnSave: document.getElementById("btnSave"),
+      btnPublish: document.getElementById("btnPublish"),
+      logs: document.getElementById("logs"),
+    };
+
+    function log(msg) {
+      ui.logs.textContent += `[${new Date().toISOString()}] ${msg}\n`;
+      ui.logs.scrollTop = ui.logs.scrollHeight;
+    }
+
+    function cfg() {
+      const baseUrl = ui.cmsApiUrl.value.trim().replace(/\/+$/, "");
+      if (!baseUrl) throw new Error("请填写 CMS API URL");
+      return {
+        baseUrl,
+        token: ui.cmsApiToken.value.trim(),
+        postsCollection: ui.postsCollection.value.trim() || "posts",
+        releasesCollection: ui.releasesCollection.value.trim() || "releases",
+        operator: ui.operator.value.trim() || "manual",
+      };
+    }
+
+    async function req(path, init = {}) {
+      const c = cfg();
+      const headers = new Headers(init.headers || {});
+      if (c.token) headers.set("Authorization", c.token);
+      if (!headers.has("Content-Type") && init.body) headers.set("Content-Type", "application/json");
+      const res = await fetch(`${c.baseUrl}${path}`, { ...init, headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      return res.json();
+    }
+
+    function postPayload(statusOverride) {
+      const status = statusOverride || ui.postStatus.value || "draft";
+      return {
+        title: ui.title.value.trim(),
+        slug: ui.slug.value.trim(),
+        excerpt: ui.excerpt.value.trim(),
+        content_html: ui.contentHtml.value,
+        status,
+        seo_title: ui.seoTitle.value.trim(),
+        seo_description: ui.seoDescription.value.trim(),
+        ...(status === "published" ? { published_at: new Date().toISOString() } : {}),
+      };
+    }
+
+    function hydrate(post) {
+      ui.postId.value = post.id || "";
+      ui.postStatus.value = post.status || "draft";
+      ui.title.value = post.title || "";
+      ui.slug.value = post.slug || "";
+      ui.excerpt.value = post.excerpt || "";
+      ui.contentHtml.value = post.content_html || "";
+      ui.seoTitle.value = post.seo_title || "";
+      ui.seoDescription.value = post.seo_description || "";
+    }
+
+    function clearForm() {
+      hydrate({});
+      ui.postStatus.value = "draft";
+    }
+
+    async function loadPosts() {
+      const items = await req(`/api/v1/posts`);
+      ui.postsList.innerHTML = items
+        .map(
+          p => `<button class="btn btn-ghost btn-sm justify-start" data-id="${p.id}">
+                  <span class="truncate">${(p.title || "Untitled").replaceAll("<", "&lt;")}</span>
+                </button>`
+        )
+        .join("");
+      log(`加载文章 ${items.length} 条`);
+    }
+
+    async function loadPostById(postId) {
+      const post = await req(`/api/v1/posts/${postId}`);
+      hydrate(post);
+      log(`加载文章成功: ${postId}`);
+    }
+
+    async function saveDraft() {
+      if (!ui.title.value.trim()) throw new Error("标题不能为空");
+      if (!ui.slug.value.trim()) throw new Error("slug 不能为空");
+
+      const body = JSON.stringify(postPayload("draft"));
+      if (!ui.postId.value) {
+        const created = await req(`/api/v1/posts`, {
+          method: "POST",
+        });
+        const updated = await req(`/api/v1/posts/${created.id}`, {
+          method: "PATCH",
+          body,
+        });
+        hydrate(updated);
+        log(`新建草稿成功: ${updated.id}`);
+      } else {
+        const updated = await req(`/api/v1/posts/${ui.postId.value}`, {
+          method: "PATCH",
+          body,
+        });
+        hydrate(updated);
+        log(`保存草稿成功: ${updated.id}`);
+      }
+      await loadPosts();
+    }
+
+    async function publish() {
+      if (!ui.postId.value) {
+        await saveDraft();
+      }
+
+      const postId = ui.postId.value;
+      const updated = await req(`/api/v1/posts/${postId}/publish`, {
+        method: "POST",
+      });
+      hydrate(updated);
+      await req(`/api/v1/site/build`, {
+        method: "POST",
+      });
+      log(`发布成功: post=${postId}`);
+      await loadPosts();
+    }
+
+    ui.btnLoadPosts.addEventListener("click", async () => {
+      try {
+        await loadPosts();
+      } catch (e) {
+        log(`加载失败: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    });
+
+    ui.postsList.addEventListener("click", async event => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const btn = target.closest("button[data-id]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+      try {
+        await loadPostById(id);
+      } catch (e) {
+        log(`加载文章失败: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    });
+
+    ui.btnNew.addEventListener("click", () => {
+      clearForm();
+      log("已切换到新建草稿");
+    });
+
+    ui.btnSave.addEventListener("click", async () => {
+      try {
+        await saveDraft();
+      } catch (e) {
+        log(`保存失败: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    });
+
+    ui.btnPublish.addEventListener("click", async () => {
+      try {
+        await publish();
+      } catch (e) {
+        log(`发布失败: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    });
+  </script>
+</Layout>

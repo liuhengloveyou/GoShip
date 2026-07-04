@@ -1,0 +1,34 @@
+---
+import type { BlogPost } from "@/content";
+import IconEdit from "@/assets/icons/IconEdit.svg";
+import { SITE } from "@/config";
+
+type Props = {
+  hideEditPost?: BlogPost["data"]["hideEditPost"];
+  class?: string;
+  post: BlogPost;
+};
+
+const { hideEditPost, post, class: className = "" } = Astro.props;
+
+const href = post.editPath ? `${SITE.editPost.url}${post.editPath}` : "";
+const showEditPost =
+  SITE.editPost.enabled && !hideEditPost && href.trim() !== "";
+---
+
+{
+  showEditPost && (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class:list={[
+        "flex justify-baseline gap-1.5 opacity-80 hover:text-accent",
+        className,
+      ]}
+    >
+      <IconEdit class="inline-block" />
+      <span>{SITE.editPost.text}</span>
+    </a>
+  )
+}

@@ -1,0 +1,59 @@
+.pb-tiptap {
+    display: block;
+    width: 100%;
+}
+
+.field .pb-tiptap {
+    margin-top: 7px;
+}
+
+.tiptap-editor {
+    min-height: 320px;
+    max-height: 680px;
+    overflow: auto;
+    align-items: flex-start;
+    cursor: text;
+}
+
+.tiptap-editor .tiptap-content {
+    width: 100%;
+    min-height: 300px;
+    outline: 0;
+    line-height: 1.7;
+}
+
+.tiptap-editor .tiptap-content p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.tiptap-editor .tiptap-content > * + * {
+    margin-top: 0.7em;
+}
+
+.tiptap-editor .tiptap-content h1,
+.tiptap-editor .tiptap-content h2,
+.tiptap-editor .tiptap-content h3 {
+    margin-top: 1.1em;
+    margin-bottom: 0.3em;
+}
+
+.tiptap-editor .tiptap-content ul,
+.tiptap-editor .tiptap-content ol {
+    padding-left: 1.3em;
+}
+
+.tiptap-editor .tiptap-content code {
+    font-family: var(--monospaceFontFamily);
+}
+
+.tiptap-editor .tiptap-content pre {
+    padding: 10px 12px;
+    border-radius: var(--baseRadius);
+    border: var(--baseBorderWidth) solid var(--baseAlt2Color);
+    background: var(--baseAlt1Color);
+    overflow-x: auto;
+}

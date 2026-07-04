@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: GoPress Web API
+  version: 0.1.0
+paths:
+  /api/v1/posts:
+    get:
+      summary: List posts
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create draft post
+      responses:
+        "201":
+          description: Created
+  /api/v1/posts/{id}:
+    get:
+      summary: Get post by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+    patch:
+      summary: Save draft fields
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Saved
+        "404":
+          description: Not found
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+  /api/v1/posts/{id}/publish:
+    post:
+      summary: Publish post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Accepted
+        "404":
+          description: Post not found
+        "409":
+          description: Invalid state
+  /api/v1/posts/{id}/request-review:
+    post:
+      summary: Request review
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated
+        "409":
+          description: Invalid state
+  /api/v1/posts/{id}/schedule:
+    post:
+      summary: Schedule post publish
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated
+        "409":
+          description: Invalid state
+  /api/v1/posts/{id}/archive:
+    post:
+      summary: Archive post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated
+  /api/v1/site/build:
+    post:
+      summary: Trigger Astro site build
+      responses:
+        "202":
+          description: Build triggered
+        "401":
+          description: Invalid token
+        "409":
+          description: Build already running
+  /api/v1/releases:
+    get:
+      summary: List release tasks
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create release task
+      responses:
+        "201":
+          description: Created
+  /api/v1/releases/{id}:
+    get:
+      summary: Get release task
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+    patch:
+      summary: Update release task status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated
+  /api/v1/releases/{id}/trigger:
+    post:
+      summary: Trigger release build
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Accepted
+

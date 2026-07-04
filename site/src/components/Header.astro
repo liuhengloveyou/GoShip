@@ -1,0 +1,147 @@
+---
+import IconMoon from "@/assets/icons/IconMoon.svg";
+import IconSearch from "@/assets/icons/IconSearch.svg";
+import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import LinkButton from "./LinkButton.astro";
+import BrandMark from "./BrandMark.astro";
+import { SITE } from "@/config";
+import { normalizeLocale, t } from "@/i18n/ui";
+
+const { pathname } = Astro.url;
+const locale = normalizeLocale(Astro.currentLocale ?? SITE.lang);
+
+const pathnameWithoutTrailingSlash =
+  pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
+const contentPath = pathnameWithoutTrailingSlash.startsWith("/en")
+  ? pathnameWithoutTrailingSlash.replace(/^\/en/, "") || "/"
+  : pathnameWithoutTrailingSlash || "/";
+const normalizedContentPath = contentPath.startsWith("/")
+  ? contentPath
+  : `/${contentPath}`;
+
+const isActive = (path: string) => {
+  const currentPathArray = normalizedContentPath
+    .split("/")
+    .filter(p => p.trim());
+  const pathArray = path.split("/").filter(p => p.trim());
+
+  return normalizedContentPath === path || currentPathArray[0] === pathArray[0];
+};
+
+const localePrefix = locale === "en" ? "/en" : "";
+const withLocale = (path: string) =>
+  path === "/" ? localePrefix || "/" : `${localePrefix}${path}`;
+---
+
+<a
+  id="skip-to-content"
+  href="#main-content"
+  class="absolute start-4 -top-full z-50 bg-background px-3 py-2 text-accent backdrop-blur-lg transition-all focus:top-4"
+>
+  {t(locale, "skipToContent")}
+</a>
+
+<header class="header-shell sticky top-0 z-40">
+  <div class="mx-auto w-full max-w-7xl px-4 lg:px-6">
+    <div class="navbar header-inner h-16 px-0">
+      <div class="navbar-start">
+        <div class="dropdown">
+          <button
+            tabindex="0"
+            class="btn btn-square btn-ghost lg:hidden"
+            aria-label={t(locale, "openMenu")}
+          >
+            <IconMenuDeep />
+          </button>
+          <ul
+            tabindex="0"
+            class="dropdown-content menu z-20 mt-3 w-56 menu-sm rounded-box border border-base-300 bg-base-100 p-2 shadow"
+          >
+            <li><a href={withLocale("/posts")} class:list={{ active: isActive("/posts") }}>{t(locale, "navPosts")}</a></li>
+            <li><a href={withLocale("/tags")} class:list={{ active: isActive("/tags") }}>{t(locale, "navTags")}</a></li>
+            <li><a href={withLocale("/about")} class:list={{ active: isActive("/about") }}>{t(locale, "navAbout")}</a></li>
+            {
+              SITE.showArchives && (
+                <li>
+                  <a href={withLocale("/archives")} class:list={{ active: isActive("/archives") }}>
+                    {t(locale, "navArchives")}
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </div>
+        <BrandMark href={withLocale("/")} size="md" />
+      </div>
+
+      <div class="navbar-end ml-auto gap-1.5">
+        <div class="hidden lg:flex">
+          <ul class="menu menu-horizontal px-1 text-[15px] font-medium">
+            <li>
+              <a
+                href={withLocale("/posts")}
+                class:list={["header-nav-link", { "is-active": isActive("/posts") }]}
+              >
+                {t(locale, "navPosts")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={withLocale("/tags")}
+                class:list={["header-nav-link", { "is-active": isActive("/tags") }]}
+              >
+                {t(locale, "navTags")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={withLocale("/about")}
+                class:list={["header-nav-link", { "is-active": isActive("/about") }]}
+              >
+                {t(locale, "navAbout")}
+              </a>
+            </li>
+            {
+              SITE.showArchives && (
+                <li>
+                  <a
+                    href={withLocale("/archives")}
+                    class:list={["header-nav-link", { "is-active": isActive("/archives") }]}
+                  >
+                    {t(locale, "navArchives")}
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </div>
+        <LinkButton
+          href={withLocale("/search")}
+          class:list={[
+            "btn btn-square btn-ghost btn-xs header-icon-btn",
+            { "btn-active": isActive("/search") },
+          ]}
+          title={t(locale, "navSearch")}
+          aria-label={t(locale, "navSearch")}
+        >
+          <IconSearch class="size-4" />
+        </LinkButton>
+        {
+          SITE.lightAndDarkMode && (
+            <button
+              id="theme-btn"
+              class="btn btn-square btn-ghost btn-xs relative header-icon-btn"
+              title="Toggles light & dark"
+              aria-label="auto"
+              aria-live="polite"
+            >
+              <IconMoon class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+              <IconSunHigh class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            </button>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</header>
