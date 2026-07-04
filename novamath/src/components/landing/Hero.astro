@@ -4,36 +4,23 @@ import { platforms, heroHighlights } from "@/data/landing";
 ---
 
 <section class="hero-section">
-  <div class="hero-grid-bg" aria-hidden="true"></div>
-  <div class="hero-glow" aria-hidden="true"></div>
-  <span class="hero-symbol hero-symbol-1" aria-hidden="true">∫</span>
-  <span class="hero-symbol hero-symbol-2" aria-hidden="true">∑</span>
-  <span class="hero-symbol hero-symbol-3" aria-hidden="true">π</span>
-
-  <div class="landing-container relative">
-    <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+  <div class="landing-container">
+    <div class="hero-grid">
       <div class="min-w-0">
-        <div class="hero-badge">
-          <span class="hero-badge-dot"></span>
-          AI 驱动的数学工具
-        </div>
+        <span class="badge-pill">AI 驱动的数学工具</span>
 
-        <h1 class="hero-title mt-5">
-          数学公式<br /><em>识别与编辑</em>
+        <h1 class="display-xl mt-5 text-balance">
+          数学公式<br />识别与编辑
         </h1>
 
-        <p class="hero-subtitle">{SITE.desc}</p>
+        <p class="body-md mt-5 max-w-md">{SITE.desc}</p>
 
-        <div class="hero-pills">
-          {
-            heroHighlights.map(item => (
-              <span class="hero-pill">{item}</span>
-            ))
-          }
+        <div class="hero-highlights">
+          {heroHighlights.map(item => <span class="badge-pill">{item}</span>)}
         </div>
 
-        <div id="download" class="mt-8">
-          <div class="platform-switch" role="tablist" aria-label="选择平台">
+        <div id="download" class="mt-8 flex flex-col items-start gap-4">
+          <div class="nav-pill-group" role="tablist" aria-label="选择平台">
             {
               platforms.map((platform, index) => (
                 <button
@@ -50,7 +37,7 @@ import { platforms, heroHighlights } from "@/data/landing";
               ))
             }
           </div>
-          <a href={SITE.download.macos} id="download-btn" class="btn-download">
+          <a href={SITE.download.macos} id="download-btn" class="btn-primary">
             下载 macOS 版
             <svg viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
               <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd" />
@@ -59,18 +46,16 @@ import { platforms, heroHighlights } from "@/data/landing";
         </div>
       </div>
 
-      <div class="hero-visual min-w-0">
-        <div class="hero-visual-frame">
-          <img
-            src="/media/hero-editor.svg"
-            alt="NovaMath 公式编辑器界面预览"
-            width="800"
-            height="500"
-            class="block h-auto w-full"
-            loading="eager"
-          />
-        </div>
-      </div>
+      <figure class="hero-mockup min-w-0">
+        <img
+          src="/media/hero-editor.svg"
+          alt="NovaMath 公式编辑器界面预览"
+          width="800"
+          height="520"
+          class="block h-auto w-full"
+          loading="eager"
+        />
+      </figure>
     </div>
   </div>
 </section>

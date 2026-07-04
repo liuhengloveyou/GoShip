@@ -19,14 +19,13 @@ const {
 <a
   href={href}
   class:list={[
-    "site-brand inline-flex items-center gap-2 font-semibold tracking-tight leading-none transition-opacity hover:opacity-80",
-    { "h-7 text-lg": size === "sm" },
-    { "h-8 text-xl": size === "md" },
+    "inline-flex items-center gap-2 font-semibold tracking-tight leading-none",
+    { "text-lg": size === "sm", "text-xl": size === "md" },
     className,
   ]}
-  style="color: var(--landing-ink, inherit);"
+  style="color: var(--color-ink);"
   {...attrs}
 >
   <LogoMark size={size} />
-  <span class="inline-block leading-none">{SITE.title}</span>
+  <span>{SITE.title}</span>
 </a>

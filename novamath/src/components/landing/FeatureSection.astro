@@ -3,46 +3,36 @@ import { featureGroups } from "@/data/landing";
 import FeatureIcon from "./FeatureIcon.astro";
 ---
 
-<section id="features" class="features-section">
-  <div class="landing-container">
-    <div class="mx-auto max-w-2xl text-center">
-      <span class="section-label">Features</span>
-      <h2 class="section-title">功能特性</h2>
-      <p class="section-desc section-desc-center">
-        从公式编辑到识别导出，NovaMath 为数学工作者提供完整工具链。
-      </p>
-    </div>
+{
+  featureGroups.map((group, index) => (
+    <section
+      id={index === 0 ? "features" : group.id}
+      class:list={[index % 2 === 0 ? "features-section" : "features-section-alt"]}
+    >
+      <div class="landing-container">
+        <div class="feature-group-header">
+          <p class="caption uppercase tracking-widest">{group.number}</p>
+          <h2 class="display-lg mt-2">{group.title}</h2>
+          <p class="body-md mt-3">{group.description}</p>
+        </div>
 
-    <div class="mt-16 space-y-24">
-      {
-        featureGroups.map((group, index) => (
-          <div
-            class:list={[
-              "feature-block",
-              { "feature-block-reverse": index % 2 === 1 },
-            ]}
-          >
-            <div class="feature-block-text min-w-0">
-              <div class="feature-number">{group.number}</div>
-              <h3 class="feature-block-title">{group.title}</h3>
-              <p class="feature-block-desc">{group.description}</p>
-            </div>
-            <ul class="feature-block-cards feature-cards min-w-0">
-              {group.items.map(item => (
-                <li class="feature-card">
-                  <div class="feature-card-icon">
-                    <FeatureIcon name={item.icon} />
-                  </div>
-                  <div class="min-w-0">
-                    <h4 class="feature-card-title">{item.title}</h4>
-                    <p class="feature-card-desc">{item.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</section>
+        <ul
+          class:list={[
+            "feature-grid",
+            group.items.length === 3 ? "feature-grid-3" : "feature-grid-2",
+          ]}
+        >
+          {group.items.map(item => (
+            <li class="feature-card">
+              <div class="feature-card-icon">
+                <FeatureIcon name={item.icon} />
+              </div>
+              <h3 class="feature-card-title">{item.title}</h3>
+              <p class="feature-card-desc">{item.description}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))
+}

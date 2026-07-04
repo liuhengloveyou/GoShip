@@ -10,73 +10,60 @@ import { navItems } from "@/data/landing";
 <a
   id="skip-to-content"
   href="#main-content"
-  class="absolute start-4 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4"
-  style="background: var(--landing-surface); color: var(--landing-accent);"
+  class="absolute start-4 -top-full z-50 bg-white px-3 py-2 text-black backdrop-blur-lg transition-all focus:top-4 dark:bg-neutral-900 dark:text-white"
 >
   跳转到主要内容
 </a>
 
 <header class="landing-header sticky top-0 z-40">
-  <div class="landing-container">
-    <div class="flex h-16 items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="dropdown lg:hidden">
-          <button
-            tabindex="0"
-            class="btn btn-square btn-ghost btn-sm"
-            aria-label="打开菜单"
-          >
-            <IconMenuDeep class="size-5" />
-          </button>
-          <ul
-            tabindex="0"
-            class="dropdown-content menu z-20 mt-3 w-52 menu-sm rounded-box p-2 shadow-lg"
-            style="background: var(--landing-surface); border: 1px solid var(--landing-border);"
-          >
-            {
-              navItems.map(item => (
-                <li>
-                  <a href={item.href}>{item.label}</a>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-        <BrandMark href="/" size="md" />
+  <div class="landing-container landing-header-inner">
+    <div class="flex items-center gap-3">
+      <div class="dropdown lg:hidden">
+        <button tabindex="0" class="icon-btn" aria-label="打开菜单">
+          <IconMenuDeep class="size-4" />
+        </button>
+        <ul
+          tabindex="0"
+          class="dropdown-content menu z-20 mt-3 w-52 menu-sm rounded-lg border border-gray-200 bg-white p-2 shadow-md dark:border-gray-700 dark:bg-neutral-900"
+        >
+          {
+            navItems.map(item => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
+        </ul>
       </div>
+      <BrandMark href="/" size="md" />
+    </div>
 
-      <div class="flex items-center gap-2">
-        <nav class="hidden lg:block" aria-label="主导航">
-          <ul class="flex items-center gap-1">
-            {
-              navItems.map(item => (
-                <li>
-                  <a href={item.href} class="header-nav-link rounded-lg px-3 py-2">
-                    {item.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
-        {
-          SITE.lightAndDarkMode && (
-            <button
-              id="theme-btn"
-              class="btn btn-square btn-ghost btn-xs relative rounded-lg"
-              style="border: 1px solid var(--landing-border);"
-              title="切换明暗主题"
-              aria-label="切换明暗主题"
-            >
-              <IconMoon class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-              <IconSunHigh class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-            </button>
-          )
-        }
-        <a href="#download" class="btn-download-sm hidden sm:inline-flex">
-          下载
-        </a>
-      </div>
+    <div class="flex items-center gap-2">
+      <nav class="hidden lg:block" aria-label="主导航">
+        <ul class="flex items-center">
+          {
+            navItems.map(item => (
+              <li>
+                <a href={item.href} class="nav-link">{item.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      {
+        SITE.lightAndDarkMode && (
+          <button
+            id="theme-btn"
+            class="icon-btn relative"
+            title="切换明暗主题"
+            aria-label="切换明暗主题"
+          >
+            <IconMoon class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <IconSunHigh class="absolute top-[50%] left-[50%] size-3.5 -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          </button>
+        )
+      }
+      <a href="#download" class="btn-primary hidden sm:inline-flex">下载</a>
     </div>
   </div>
 </header>

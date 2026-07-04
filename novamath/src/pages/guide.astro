@@ -6,43 +6,44 @@ import LandingLayout from "@/layouts/LandingLayout.astro";
   title="使用指南"
   description="NovaMath 快速上手指南，了解如何安装、编辑公式与使用识别功能。"
 >
-  <article class="landing-container py-14 sm:py-20">
-    <span class="section-label">Guide</span>
-    <h1 class="section-title mt-2">使用指南</h1>
-    <p class="section-desc mt-3">本指南帮助你快速上手 NovaMath 的核心功能。</p>
+  <article class="landing-prose-page">
+    <div class="landing-container max-w-3xl">
+      <h1 class="display-lg">使用指南</h1>
+      <p class="body-md mt-3">本指南帮助你快速上手 NovaMath 的核心功能。</p>
 
-    <div class="app-prose mt-10 max-w-3xl">
-      <h2>安装</h2>
-      <ol>
-        <li>从首页选择对应平台（macOS / Windows / Linux）并下载安装包</li>
-        <li>按照安装向导完成安装</li>
-        <li>首次启动时，可选择默认编辑模式</li>
-      </ol>
+      <div class="app-prose mt-10">
+        <h2>安装</h2>
+        <ol>
+          <li>从首页选择对应平台（macOS / Windows / Linux）并下载安装包</li>
+          <li>按照安装向导完成安装</li>
+          <li>首次启动时，可选择默认编辑模式</li>
+        </ol>
 
-      <h2>公式编辑</h2>
-      <h3>即时 LaTeX 模式</h3>
-      <p>在左侧输入 LaTeX 代码，右侧实时显示渲染结果。适合快速编写简单公式。</p>
+        <h2>公式编辑</h2>
+        <h3>即时 LaTeX 模式</h3>
+        <p>在左侧输入 LaTeX 代码，右侧实时显示渲染结果。适合快速编写简单公式。</p>
 
-      <h3>标准 LaTeX 模式</h3>
-      <p>
-        使用完整 LaTeX 引擎编译，支持复杂宏包（tikz、mhchem 等）。适合论文与出版物。
-      </p>
+        <h3>标准 LaTeX 模式</h3>
+        <p>
+          使用完整 LaTeX 引擎编译，支持复杂宏包（tikz、mhchem 等）。适合论文与出版物。
+        </p>
 
-      <h3>可视化编辑模式</h3>
-      <p>
-        通过工具栏点击符号与结构，无需记忆 LaTeX 语法。完成后可导出 LaTeX 或 MathML。
-      </p>
+        <h3>可视化编辑模式</h3>
+        <p>
+          通过工具栏点击符号与结构，无需记忆 LaTeX 语法。完成后可导出 LaTeX 或 MathML。
+        </p>
 
-      <h2>公式识别</h2>
-      <ol>
-        <li>点击「识别」或拖拽公式图片到识别区域</li>
-        <li>等待识别完成，LaTeX 代码将自动填入编辑器</li>
-        <li>可在历史记录中查看之前的识别结果</li>
-      </ol>
+        <h2>公式识别</h2>
+        <ol>
+          <li>点击「识别」或拖拽公式图片到识别区域</li>
+          <li>等待识别完成，LaTeX 代码将自动填入编辑器</li>
+          <li>可在历史记录中查看之前的识别结果</li>
+        </ol>
 
-      <h2>常见问题</h2>
-      <p><strong>识别结果不准确？</strong> 请确保图片清晰、背景干净，公式占据画面主要区域。</p>
-      <p><strong>离线模式？</strong> 公式识别与编辑功能均可在无网络环境下使用。</p>
+        <h2>常见问题</h2>
+        <p><strong>识别结果不准确？</strong> 请确保图片清晰、背景干净，公式占据画面主要区域。</p>
+        <p><strong>离线模式？</strong> 公式识别与编辑功能均可在无网络环境下使用。</p>
+      </div>
     </div>
   </article>
 </LandingLayout>

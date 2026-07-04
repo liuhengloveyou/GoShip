@@ -67,16 +67,22 @@ export const featureGroups = [
 export const useCases = [
   {
     role: "数学专业博士生",
+    initials: "博",
+    avatar: "orange" as const,
     quote:
       "识别速度快、准确率高，而且完全离线可用——在实验室没有网络时也能整理笔记。",
   },
   {
     role: "高校数学教师",
+    initials: "师",
+    avatar: "pink" as const,
     quote:
       "界面简洁，批量识别多张公式图片非常高效，历史记录让我随时回顾之前的识别结果。",
   },
   {
     role: "理工科学生",
+    initials: "生",
+    avatar: "violet" as const,
     quote:
       "可视化编辑模式对 LaTeX 新手很友好，导出 LaTeX 后排版也很整齐。",
   },

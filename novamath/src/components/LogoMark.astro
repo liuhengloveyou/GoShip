@@ -8,16 +8,15 @@ const { size = "md" } = Astro.props;
 
 <span
   class:list={[
-    "inline-flex shrink-0 items-center justify-center rounded-lg",
-    { "size-5 rounded-md": size === "sm", "size-7": size === "md" },
+    "inline-flex shrink-0 items-center justify-center rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900",
+    { "size-5": size === "sm", "size-6": size === "md" },
   ]}
-  style="background: var(--landing-accent-soft); color: var(--landing-accent);"
   aria-hidden="true"
 >
   <svg
     viewBox="0 0 24 24"
     fill="none"
-    class:list={[{ "size-3": size === "sm", "size-4": size === "md" }]}
+    class:list={[{ "size-3": size === "sm", "size-3.5": size === "md" }]}
   >
     <path
       d="M6 18L18 6M8 6h10v10"
@@ -25,12 +24,5 @@ const { size = "md" } = Astro.props;
       stroke-width="2.25"
       stroke-linecap="round"
       stroke-linejoin="round"></path>
-    <path
-      d="M6 14V6h8"
-      stroke="currentColor"
-      stroke-width="2.25"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      opacity="0.5"></path>
   </svg>
 </span>
