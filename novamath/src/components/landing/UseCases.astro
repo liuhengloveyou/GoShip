@@ -1,0 +1,27 @@
+---
+import { useCases } from "@/data/landing";
+---
+
+<section class="testimonials-section">
+  <div class="landing-container">
+    <div class="mx-auto max-w-xl text-center">
+      <span class="section-label">Testimonials</span>
+      <h2 class="section-title">用户评价</h2>
+      <p class="section-desc section-desc-center">
+        来自高校师生与科研工作者的使用反馈
+      </p>
+    </div>
+
+    <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        useCases.map(item => (
+          <li class="testimonial-card">
+            <span class="testimonial-quote-mark" aria-hidden="true">"</span>
+            <blockquote class="testimonial-text">{item.quote}</blockquote>
+            <footer class="testimonial-role">{item.role}</footer>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,15 @@
+---
+import LandingLayout from "@/layouts/LandingLayout.astro";
+import Hero from "@/components/landing/Hero.astro";
+import FeatureSection from "@/components/landing/FeatureSection.astro";
+import UseCases from "@/components/landing/UseCases.astro";
+import Support from "@/components/landing/Support.astro";
+import { SITE } from "@/config";
+---
+
+<LandingLayout title={`${SITE.title} — ${SITE.tagline}`} description={SITE.desc}>
+  <Hero />
+  <FeatureSection />
+  <UseCases />
+  <Support />
+</LandingLayout>

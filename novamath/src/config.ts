@@ -1,0 +1,32 @@
+export const SITE = {
+  website: "https://novamath.app/",
+  author: "NovaMath",
+  profile: "https://novamath.app/",
+  desc: "NovaMath — 数学公式识别与编辑器，支持 LaTeX 实时渲染、可视化编辑与离线识别。",
+  title: "NovaMath",
+  tagline: "数学公式识别与编辑器",
+  ogImage: "og.png",
+  lightAndDarkMode: true,
+  postPerIndex: 4,
+  postPerPage: 4,
+  scheduledPostMargin: 15 * 60 * 1000,
+  showArchives: false,
+  showBackButton: true,
+  editPost: {
+    enabled: false,
+    text: "反馈问题",
+    url: "mailto:support@novamath.app",
+  },
+  dynamicOgImage: true,
+  dir: "ltr",
+  lang: "zh-CN",
+  timezone: "Asia/Shanghai",
+  download: {
+    macos: "#download",
+    windows: "#download",
+    linux: "#download",
+  },
+  contact: {
+    email: "support@novamath.app",
+  },
+} as const;

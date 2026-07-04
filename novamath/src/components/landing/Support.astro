@@ -1,0 +1,24 @@
+---
+import { SITE } from "@/config";
+---
+
+<section id="support" class="support-section">
+  <div class="landing-container">
+    <div class="support-card mx-auto max-w-2xl">
+      <span class="support-card-deco support-card-deco-1" aria-hidden="true">?</span>
+      <span class="support-card-deco support-card-deco-2" aria-hidden="true">∑</span>
+
+      <span class="section-label">Support</span>
+      <h2 class="section-title mt-2">支持与帮助</h2>
+      <p class="section-desc section-desc-center mx-auto mt-3">
+        遇到问题或有功能建议？欢迎联系我们，我们会尽快回复。
+      </p>
+      <a href={`mailto:${SITE.contact.email}`} class="btn-download mt-8">
+        联系支持
+      </a>
+      <p class="mt-4 text-sm" style="color: var(--landing-muted-text)">
+        {SITE.contact.email}
+      </p>
+    </div>
+  </div>
+</section>

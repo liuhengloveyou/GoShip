@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none" role="img" aria-label="NovaMath ?????">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1a1a2e"/>
+      <stop offset="1" stop-color="#12121c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" rx="12" fill="url(#bg)"/>
+  <!-- window chrome -->
+  <rect x="20" y="20" width="760" height="44" rx="8" fill="#222230"/>
+  <circle cx="44" cy="42" r="7" fill="#3f3f50"/>
+  <circle cx="68" cy="42" r="7" fill="#3f3f50"/>
+  <circle cx="92" cy="42" r="7" fill="#3f3f50"/>
+  <text x="400" y="48" text-anchor="middle" fill="#8888a0" font-family="system-ui,sans-serif" font-size="14">NovaMath</text>
+  <!-- sidebar -->
+  <rect x="20" y="76" width="200" height="404" rx="8" fill="#1c1c28"/>
+  <rect x="36" y="96" width="168" height="32" rx="6" fill="url(#accent)" opacity="0.9"/>
+  <text x="48" y="116" fill="white" font-family="system-ui,sans-serif" font-size="12" font-weight="600">?? LaTeX</text>
+  <rect x="36" y="140" width="168" height="24" rx="4" fill="#2a2a3a"/>
+  <rect x="36" y="172" width="168" height="24" rx="4" fill="#2a2a3a"/>
+  <rect x="36" y="204" width="168" height="24" rx="4" fill="#2a2a3a"/>
+  <rect x="36" y="236" width="168" height="24" rx="4" fill="#2a2a3a"/>
+  <!-- editor area -->
+  <rect x="232" y="76" width="548" height="404" rx="8" fill="#1c1c28"/>
+  <!-- code input -->
+  <rect x="248" y="92" width="516" height="36" rx="6" fill="#14141e"/>
+  <text x="260" y="115" fill="#6366f1" font-family="ui-monospace,monospace" font-size="13">\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}</text>
+  <!-- preview -->
+  <rect x="248" y="144" width="516" height="320" rx="8" fill="#14141e" stroke="#2a2a3a"/>
+  <text x="506" y="270" text-anchor="middle" fill="#e8e8f0" font-family="Georgia,serif" font-size="48">? 1/n² = ?²/6</text>
+  <text x="506" y="310" text-anchor="middle" fill="#6366f1" font-family="system-ui,sans-serif" font-size="13" opacity="0.8">????</text>
+  <!-- floating badge -->
+  <rect x="620" y="108" width="120" height="28" rx="14" fill="#6366f1" opacity="0.15" stroke="#6366f1" stroke-width="1"/>
+  <text x="680" y="127" text-anchor="middle" fill="#818cf8" font-family="system-ui,sans-serif" font-size="11">????</text>
+</svg>

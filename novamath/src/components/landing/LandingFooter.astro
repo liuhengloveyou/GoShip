@@ -1,0 +1,38 @@
+---
+import { SITE } from "@/config";
+import { navItems } from "@/data/landing";
+import BrandMark from "../BrandMark.astro";
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="landing-footer">
+  <div class="landing-container py-10">
+    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-3">
+        <BrandMark href="/" size="sm" />
+        <p class="landing-footer-desc max-w-xs">{SITE.desc}</p>
+      </div>
+      <nav aria-label="页脚导航">
+        <ul class="flex flex-wrap gap-x-5 gap-y-2">
+          {
+            navItems.map(item => (
+              <li>
+                <a href={item.href} class="landing-footer-link">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+    <div
+      class="mt-8 flex flex-col gap-1 border-t pt-5 text-xs sm:flex-row sm:items-center sm:justify-between"
+      style="border-color: var(--landing-border); color: var(--landing-muted-text);"
+    >
+      <span>Copyright © {currentYear} {SITE.title}</span>
+      <span>保留所有权利</span>
+    </div>
+  </div>
+</footer>
